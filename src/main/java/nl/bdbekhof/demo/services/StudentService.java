@@ -2,6 +2,8 @@ package nl.bdbekhof.demo.services;
 
 import nl.bdbekhof.demo.dtos.StudentPatchDto;
 import nl.bdbekhof.demo.models.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,4 +15,5 @@ public interface StudentService {
     Student update(Long id, Student input);
     Student patch(Long id, StudentPatchDto patch);
     void delete(Long id);
+    Page<Student> getAll(Pageable pageable);
 }

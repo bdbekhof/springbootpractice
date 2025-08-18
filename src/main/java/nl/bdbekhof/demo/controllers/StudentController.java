@@ -4,9 +4,14 @@ import jakarta.validation.Valid;
 import nl.bdbekhof.demo.dtos.StudentPatchDto;
 import nl.bdbekhof.demo.models.Student;
 import nl.bdbekhof.demo.services.StudentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -14,14 +19,30 @@ import java.util.List;
 @RequestMapping("/students")
 public class StudentController {
     private final StudentService studentService;
+    private Sort parseSort(String sortParam) {
+        if(sortParam == null || sortParam.isBlank()) {
+            return Sort.by(Sort.Order.asc("id"));
+        }
+
+        String[] parts = sortParam.split(",", 2);
+        String property = parts[0].trim();
+        if(property.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort property is empty.");
+        }
+
+        Sort.Direction direction = Sort.Direction.ASC;
+        if(parts.length == 2 && !parts[1].isBlank()) {
+            String dir = parts[1].trim();
+            if("desc".equalsIgnoreCase(dir)) direction = Sort.Direction.DESC;
+            else if(!"asc".equalsIgnoreCase(dir)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort directen must be 'asc'.");
+            }
+        }
+        return Sort.by(new Sort.Order(direction, property));
+    }
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
-    }
-
-    @GetMapping
-    public List<Student> getAll() {
-        return studentService.getAll();
     }
 
     @GetMapping("/{id}")
@@ -32,6 +53,17 @@ public class StudentController {
     @GetMapping(value = "/search", params = "email")
     public Student getByEmail(@RequestParam String email) {
         return studentService.getByEmail(email);
+    }
+
+    @GetMapping
+    public Page<Student> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String sort
+    ) {
+        Sort sortObj = parseSort(sort);
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+        return studentService.getAll(pageable);
     }
     
     @PostMapping

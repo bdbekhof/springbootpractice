@@ -3,6 +3,8 @@ package nl.bdbekhof.demo.services;
 import nl.bdbekhof.demo.dtos.StudentPatchDto;
 import nl.bdbekhof.demo.models.Student;
 import nl.bdbekhof.demo.repositories.StudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -81,5 +83,10 @@ public class StudentServiceImpl implements StudentService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
         }
         studentRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Student> getAll(Pageable pageable) {
+        return studentRepository.findAll(pageable);
     }
 }
