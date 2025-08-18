@@ -89,4 +89,28 @@ public class StudentServiceImpl implements StudentService {
     public Page<Student> getAll(Pageable pageable) {
         return studentRepository.findAll(pageable);
     }
+
+    @Override
+    public Page<Student> search(String firstName, String lastName, Pageable pageable) {
+        boolean hasFirst = firstName != null && !firstName.isBlank();
+        boolean hasLast = lastName != null && !lastName.isBlank();
+
+        if(!hasFirst && !hasLast) {
+            return studentRepository.findAll(pageable);
+        }
+
+        if(hasFirst && !hasLast) {
+            return  studentRepository.findByFirstNameContainingIgnoreCase(firstName, pageable);
+        }
+
+        if(!hasFirst && hasLast) {
+            return studentRepository.findByLastNameContainingIgnoreCase(lastName, pageable);
+        }
+
+        if(hasFirst && hasLast) {
+            return studentRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName, pageable);
+        }
+
+        return Page.empty(pageable);
+    }
 }

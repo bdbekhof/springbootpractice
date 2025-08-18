@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/students")
 public class StudentController {
@@ -59,11 +57,13 @@ public class StudentController {
     public Page<Student> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id,asc") String sort
+            @RequestParam(defaultValue = "id,asc") String sort,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName
     ) {
         Sort sortObj = parseSort(sort);
         Pageable pageable = PageRequest.of(page, size, sortObj);
-        return studentService.getAll(pageable);
+        return studentService.search(firstName, lastName, pageable);
     }
     
     @PostMapping

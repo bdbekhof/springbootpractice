@@ -16,4 +16,5 @@ public interface StudentService {
     Student patch(Long id, StudentPatchDto patch);
     void delete(Long id);
     Page<Student> getAll(Pageable pageable);
+    Page<Student> search(String firstName, String lastName, Pageable pageable);
 }
