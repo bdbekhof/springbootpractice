@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/students")
 public class StudentController {
     private final StudentService studentService;
+
     private Sort parseSort(String sortParam) {
         if(sortParam == null || sortParam.isBlank()) {
             return Sort.by(Sort.Order.asc("id"));
@@ -33,7 +34,7 @@ public class StudentController {
             String dir = parts[1].trim();
             if("desc".equalsIgnoreCase(dir)) direction = Sort.Direction.DESC;
             else if(!"asc".equalsIgnoreCase(dir)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort directen must be 'asc'.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort direction must be 'asc'.");
             }
         }
         return Sort.by(new Sort.Order(direction, property));
