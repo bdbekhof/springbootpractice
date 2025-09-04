@@ -1,7 +1,7 @@
 package nl.bdbekhof.demo.controllers;
 
 import jakarta.validation.Valid;
-import nl.bdbekhof.demo.dtos.TeacherPatchDto;
+import nl.bdbekhof.demo.dtos.teacher.TeacherPatchDto;
 import nl.bdbekhof.demo.models.Teacher;
 import nl.bdbekhof.demo.services.TeacherService;
 import org.springframework.http.HttpStatus;

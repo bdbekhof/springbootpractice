@@ -1,7 +1,10 @@
 package nl.bdbekhof.demo.controllers;
 
 import jakarta.validation.Valid;
-import nl.bdbekhof.demo.dtos.StudentPatchDto;
+import nl.bdbekhof.demo.dtos.student.StudentCreateDto;
+import nl.bdbekhof.demo.dtos.student.StudentDto;
+import nl.bdbekhof.demo.dtos.student.StudentPatchDto;
+import nl.bdbekhof.demo.dtos.student.StudentUpdateDto;
 import nl.bdbekhof.demo.models.Student;
 import nl.bdbekhof.demo.services.StudentService;
 import org.springframework.data.domain.Page;
@@ -45,17 +48,17 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public Student getOne(@PathVariable Long id) {
+    public StudentDto getOne(@PathVariable Long id) {
         return studentService.getOne(id);
     }
     
     @GetMapping(value = "/search", params = "email")
-    public Student getByEmail(@RequestParam String email) {
+    public StudentDto getByEmail(@RequestParam String email) {
         return studentService.getByEmail(email);
     }
 
     @GetMapping
-    public Page<Student> getAll(
+    public Page<StudentDto> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id,asc") String sort,
@@ -68,26 +71,26 @@ public class StudentController {
     }
     
     @PostMapping
-    public Student createStudent(@Valid @RequestBody Student input) {
+    public StudentDto createStudent(@Valid @RequestBody StudentCreateDto input) {
         return studentService.create(input);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @Valid @RequestBody Student input) {
-        Student updated = studentService.update(id, input);
+    public ResponseEntity<StudentDto> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentUpdateDto input) {
+        StudentDto updated = studentService.update(id, input);
 
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Student> patchStudent(@PathVariable Long id, @RequestBody StudentPatchDto patch) {
-        Student updated = studentService.patch(id, patch);
+    public ResponseEntity<StudentDto> patchStudent(@PathVariable Long id, @RequestBody StudentPatchDto patch) {
+        StudentDto updated = studentService.patch(id, patch);
 
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Student> deleteStudent(@PathVariable Long id) {
+    public ResponseEntity<StudentDto> deleteStudent(@PathVariable Long id) {
         studentService.delete(id);
 
         return ResponseEntity.noContent().build();

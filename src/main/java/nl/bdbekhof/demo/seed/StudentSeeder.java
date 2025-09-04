@@ -31,7 +31,7 @@ public class StudentSeeder implements CommandLineRunner {
             s.setFirstName("Demo " + i);
             s.setLastName("Student");
             s.setEmail("demo"+ i + "@example.com");
-            studentService.create(s);
+//            studentService.create(s);
         }
     }
 }

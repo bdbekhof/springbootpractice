@@ -1,20 +1,22 @@
 package nl.bdbekhof.demo.services;
 
-import nl.bdbekhof.demo.dtos.StudentPatchDto;
-import nl.bdbekhof.demo.models.Student;
+import nl.bdbekhof.demo.dtos.student.StudentCreateDto;
+import nl.bdbekhof.demo.dtos.student.StudentDto;
+import nl.bdbekhof.demo.dtos.student.StudentPatchDto;
+import nl.bdbekhof.demo.dtos.student.StudentUpdateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface StudentService {
-    List<Student> getAll();
-    Student getOne(Long id);
-    Student getByEmail(String email);
-    Student create(Student input);
-    Student update(Long id, Student input);
-    Student patch(Long id, StudentPatchDto patch);
+    List<StudentDto> getAll();
+    StudentDto getOne(Long id);
+    StudentDto getByEmail(String email);
+    StudentDto create(StudentCreateDto input);
+    StudentDto update(Long id, StudentUpdateDto input);
+    StudentDto patch(Long id, StudentPatchDto patch);
     void delete(Long id);
-    Page<Student> getAll(Pageable pageable);
-    Page<Student> search(String firstName, String lastName, Pageable pageable);
+    Page<StudentDto> getAll(Pageable pageable);
+    Page<StudentDto> search(String firstName, String lastName, Pageable pageable);
 }

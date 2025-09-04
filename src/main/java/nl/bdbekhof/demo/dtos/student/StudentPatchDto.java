@@ -1,4 +1,4 @@
-package nl.bdbekhof.demo.dtos;
+package nl.bdbekhof.demo.dtos.student;
 
 import jakarta.validation.constraints.Email;
 import lombok.Getter;

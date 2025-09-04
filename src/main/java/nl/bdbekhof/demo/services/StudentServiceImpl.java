@@ -1,6 +1,11 @@
 package nl.bdbekhof.demo.services;
 
-import nl.bdbekhof.demo.dtos.StudentPatchDto;
+import jakarta.validation.Valid;
+import nl.bdbekhof.demo.dtos.student.StudentCreateDto;
+import nl.bdbekhof.demo.dtos.student.StudentDto;
+import nl.bdbekhof.demo.dtos.student.StudentPatchDto;
+import nl.bdbekhof.demo.dtos.student.StudentUpdateDto;
+import nl.bdbekhof.demo.mappers.student.StudentMapper;
 import nl.bdbekhof.demo.models.Student;
 import nl.bdbekhof.demo.repositories.StudentRepository;
 import org.springframework.data.domain.Page;
@@ -20,61 +25,64 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Student> getAll() {
-        return studentRepository.findAll();
+    public List<StudentDto> getAll() {
+        return studentRepository.findAll().stream().map(StudentMapper::toDto).toList();
     }
 
     @Override
-    public Student getOne(Long id) {
-        return studentRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+    public StudentDto getOne(Long id) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+        return StudentMapper.toDto(student);
     }
 
     @Override
-    public Student getByEmail(String email) {
-        return studentRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+    public StudentDto getByEmail(String email) {
+        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+        return StudentMapper.toDto(student);
     }
 
     @Override
-    public Student create(Student input) {
+    public StudentDto create(StudentCreateDto input) {
         if(studentRepository.existsByEmail(input.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
         }
-        input.setId(null);
-        return studentRepository.save(input);
+
+        Student entity = StudentMapper.toEntity(input);
+        Student saved = studentRepository.save(entity);
+
+        return StudentMapper.toDto(saved);
     }
 
     @Override
-    public Student update(Long id, Student input) {
-        Student existingStudent = getOne(id);
+    public StudentDto update(Long id, StudentUpdateDto input) {
+        Student existingStudent = studentRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
 
-        if(input.getId() != null && !input.getId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID mismatch");
+        if(input.id() != null && !input.id().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID mismatch.");
         }
 
-        if(input.getEmail() != null && studentRepository.existsByEmailAndIdNot(input.getEmail(), id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
-        }
+        StudentMapper.updateEntity(input, existingStudent);
 
-        existingStudent.setFirstName(input.getFirstName());
-        existingStudent.setLastName(input.getLastName());
-        existingStudent.setEmail(input.getEmail());
-
-        return studentRepository.save(existingStudent);
+        Student saved = studentRepository.save(existingStudent);
+        return StudentMapper.toDto(saved);
     }
 
     @Override
-    public Student patch(Long id, StudentPatchDto patch) {
-        Student existingStudent = getOne(id);
+    public StudentDto patch(Long id, StudentPatchDto patch) {
+        Student existingStudent = studentRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
 
         if(patch.getEmail() != null && studentRepository.existsByEmailAndIdNot(patch.getEmail(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
         }
 
-        if(patch.getFirstName() != null && !patch.getFirstName().isBlank()) existingStudent.setFirstName(patch.getFirstName());
-        if(patch.getLastName() != null && !patch.getLastName().isBlank()) existingStudent.setLastName(patch.getLastName());
-        if(patch.getEmail() != null && !patch.getEmail().isBlank()) existingStudent.setEmail(patch.getEmail());
+        StudentMapper.patchEntity(patch, existingStudent);
+        Student patched = studentRepository.save(existingStudent);
 
-        return studentRepository.save(existingStudent);
+        return StudentMapper.toDto(patched);
     }
 
     @Override
@@ -86,31 +94,26 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Page<Student> getAll(Pageable pageable) {
-        return studentRepository.findAll(pageable);
+    public Page<StudentDto> getAll(Pageable pageable) {
+        return studentRepository.findAll(pageable).map(StudentMapper::toDto);
     }
 
     @Override
-    public Page<Student> search(String firstName, String lastName, Pageable pageable) {
+    public Page<StudentDto> search(String firstName, String lastName, Pageable pageable) {
         boolean hasFirst = firstName != null && !firstName.isBlank();
         boolean hasLast = lastName != null && !lastName.isBlank();
 
+        Page<StudentDto> result;
         if(!hasFirst && !hasLast) {
-            return studentRepository.findAll(pageable);
+            result = studentRepository.findAll(pageable).map(StudentMapper::toDto);
+        } else if(!hasLast) {
+            result = studentRepository.findByFirstNameContainingIgnoreCase(firstName, pageable);
+        } else if(!hasFirst) {
+            result = studentRepository.findByLastNameContainingIgnoreCase(lastName, pageable);
+        } else {
+            result = studentRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName, pageable);
         }
 
-        if(hasFirst && !hasLast) {
-            return  studentRepository.findByFirstNameContainingIgnoreCase(firstName, pageable);
-        }
-
-        if(!hasFirst && hasLast) {
-            return studentRepository.findByLastNameContainingIgnoreCase(lastName, pageable);
-        }
-
-        if(hasFirst && hasLast) {
-            return studentRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName, pageable);
-        }
-
-        return Page.empty(pageable);
+        return result;
     }
 }

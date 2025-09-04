@@ -1,6 +1,6 @@
 package nl.bdbekhof.demo.services;
 
-import nl.bdbekhof.demo.dtos.TeacherPatchDto;
+import nl.bdbekhof.demo.dtos.teacher.TeacherPatchDto;
 import nl.bdbekhof.demo.models.Teacher;
 
 import java.util.List;

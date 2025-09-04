@@ -1,4 +1,4 @@
-package nl.bdbekhof.demo.dtos;
+package nl.bdbekhof.demo.dtos.book;
 
 import lombok.Getter;
 import lombok.Setter;
