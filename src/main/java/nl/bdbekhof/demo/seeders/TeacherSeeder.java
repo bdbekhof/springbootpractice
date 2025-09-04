@@ -1,4 +1,4 @@
-package nl.bdbekhof.demo.seed;
+package nl.bdbekhof.demo.seeders;
 
 import nl.bdbekhof.demo.services.TeacherService;
 import org.springframework.beans.factory.annotation.Value;

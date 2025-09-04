@@ -1,6 +1,7 @@
 package nl.bdbekhof.demo.controllers;
 
 import jakarta.validation.Valid;
+import nl.bdbekhof.demo.dtos.book.BookDto;
 import nl.bdbekhof.demo.models.Book;
 import nl.bdbekhof.demo.models.Student;
 import nl.bdbekhof.demo.repositories.BookRepository;
@@ -24,7 +25,7 @@ public class BookController {
     }
 
     @GetMapping
-    public List<Book> getAll(@PathVariable Long studentId) {
+    public List<BookDto> getAll(@PathVariable Long studentId) {
         return bookRepository.findByStudentId(studentId);
     }
 

@@ -1,4 +1,4 @@
-package nl.bdbekhof.demo.api;
+package nl.bdbekhof.demo.apis;
 
 import lombok.Getter;
 import lombok.Setter;
