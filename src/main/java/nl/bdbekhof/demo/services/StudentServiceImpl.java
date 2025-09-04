@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -26,18 +27,27 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<StudentDto> getAll() {
-        return studentRepository.findAll().stream().map(StudentMapper::toDto).toList();
+        return studentRepository.findAll()
+                .stream()
+                .map(StudentMapper::toDto)
+                .toList();
     }
 
     @Override
     public StudentDto getOne(Long id) {
-        Student student = studentRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+        Student student = studentRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+
         return StudentMapper.toDto(student);
     }
 
     @Override
     public StudentDto getByEmail(String email) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+        Student student = studentRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found."));
+
         return StudentMapper.toDto(student);
     }
 

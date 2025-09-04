@@ -18,5 +18,6 @@ public record StudentDto(Long id, String firstName, String lastName, String emai
     }
 
     public void setEmail(@NotBlank @Email(message = "Email should be valid") String email) {
+
     }
 }
