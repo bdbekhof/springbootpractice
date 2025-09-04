@@ -1,6 +1,10 @@
 package nl.bdbekhof.demo.services;
 
+import nl.bdbekhof.demo.dtos.teacher.TeacherCreateDto;
+import nl.bdbekhof.demo.dtos.teacher.TeacherDto;
 import nl.bdbekhof.demo.dtos.teacher.TeacherPatchDto;
+import nl.bdbekhof.demo.dtos.teacher.TeacherUpdateDto;
+import nl.bdbekhof.demo.mappers.teacher.TeacherMapper;
 import nl.bdbekhof.demo.models.Teacher;
 import nl.bdbekhof.demo.repositories.TeacherRepository;
 import org.springframework.http.HttpStatus;
@@ -22,40 +26,56 @@ public class TeacherServiceImpl implements TeacherService {
 
     // Retrieve all records of teachers
     @Override
-    public List<Teacher> getAll() {
-        return teacherRepository.findAll();
+    public List<TeacherDto> getAll() {
+        return teacherRepository.findAll()
+                .stream()
+                .map(TeacherMapper::toDto)
+                .toList();
     }
 
     // Retrieve a specific teacher by id, if the teacher (id) does not exist, throw a bad request error with
     // explanation why it happened.
     @Override
-    public Teacher getOne(Long id) {
-        return teacherRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Teacher doesn't exist."));
+    public TeacherDto getOne(Long id) {
+        Teacher teacher = teacherRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Teacher doesn't exist."));
+
+        return TeacherMapper.toDto(teacher);
     }
 
     // Retrieve a specific teacher by id, if the teacher (email) does not exist, throw a bad request error
     // with explanation why it happened.
     @Override
-    public Teacher getByEmail(String email) {
-        return teacherRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email doesn't exist."));
+    public TeacherDto getByEmail(String email) {
+        Teacher teacher = teacherRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email doesn't exist."));
+
+        return TeacherMapper.toDto(teacher);
     }
 
     // Create a new teacher, check if the email already exists. If it does, create a conflict error
     @Override
-    public Teacher create(Teacher input) {
+    public TeacherDto create(TeacherCreateDto input) {
         if(teacherRepository.existsByEmail(input.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
         }
-        input.setId(null);
-        return teacherRepository.save(input);
+
+        Teacher entity = TeacherMapper.toEntity(input);
+        Teacher saved = teacherRepository.save(entity);
+
+        return TeacherMapper.toDto(saved);
     }
 
     // Update every field of teacher, also checks if the id matches and if the given email already exists.
     @Override
-    public Teacher update(Long id, Teacher input) {
-        Teacher existingTeacher = getOne(id);
+    public TeacherDto update(Long id, TeacherUpdateDto input) {
+        Teacher existingTeacher = teacherRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Teacher not found."));
 
-        if(input.getId() != null && !input.getId().equals(id)) {
+        if(input.id() != null && !input.id().equals(id)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID mismatch.");
         }
 
@@ -63,29 +83,26 @@ public class TeacherServiceImpl implements TeacherService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
         }
 
-        existingTeacher.setFirstName(input.getFirstName());
-        existingTeacher.setLastName(input.getLastName());
-        existingTeacher.setEmail(input.getEmail());
-        existingTeacher.setSubject(input.getSubject());
+        Teacher saved = teacherRepository.save(existingTeacher);
 
-        return teacherRepository.save(existingTeacher);
+        return TeacherMapper.toDto(saved);
     }
 
     // Only update (patch) fields that have received new information. Also check if the email already exists.
     @Override
-    public Teacher patch(Long id, TeacherPatchDto patch) {
-        Teacher existingTeacher = getOne(id);
+    public TeacherDto patch(Long id, TeacherPatchDto patch) {
+        Teacher existingTeacher = teacherRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Teacher not found"));
 
         if(patch.getEmail() != null && teacherRepository.existsByEmailAndIdNot(patch.getEmail(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
         }
 
-        if(patch.getFirstName() != null && !patch.getFirstName().isBlank()) existingTeacher.setFirstName(patch.getFirstName());
-        if(patch.getLastName() != null && !patch.getLastName().isBlank()) existingTeacher.setLastName(patch.getLastName());
-        if(patch.getEmail() != null && !patch.getEmail().isBlank()) existingTeacher.setEmail(patch.getEmail());
-        if(patch.getSubject() != null && !patch.getSubject().isBlank()) existingTeacher.setSubject(patch.getSubject());
+        TeacherMapper.patchEntity(patch, existingTeacher);
+        Teacher patched = teacherRepository.save(existingTeacher);
 
-        return teacherRepository.save(existingTeacher);
+        return TeacherMapper.toDto(patched);
     }
 
     // Delete a teacher.

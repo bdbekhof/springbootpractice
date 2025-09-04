@@ -1,7 +1,10 @@
 package nl.bdbekhof.demo.controllers;
 
 import jakarta.validation.Valid;
+import nl.bdbekhof.demo.dtos.teacher.TeacherCreateDto;
+import nl.bdbekhof.demo.dtos.teacher.TeacherDto;
 import nl.bdbekhof.demo.dtos.teacher.TeacherPatchDto;
+import nl.bdbekhof.demo.dtos.teacher.TeacherUpdateDto;
 import nl.bdbekhof.demo.models.Teacher;
 import nl.bdbekhof.demo.services.TeacherService;
 import org.springframework.http.HttpStatus;
@@ -18,25 +21,25 @@ public class TeacherController {
     }
 
     @GetMapping("/{id}")
-    public Teacher getOne(@PathVariable Long id) {
+    public TeacherDto getOne(@PathVariable Long id) {
         return teacherService.getOne(id);
     }
 
     @PostMapping
-    public Teacher createTeacher(@Valid @RequestBody Teacher input) {
+    public TeacherDto createTeacher(@Valid @RequestBody TeacherCreateDto input) {
         return teacherService.create(input);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Teacher> updateTeacher(@PathVariable Long id, @Valid @RequestBody Teacher input) {
-        Teacher updated = teacherService.update(id, input);
+    public ResponseEntity<TeacherDto> updateTeacher(@PathVariable Long id, @Valid @RequestBody TeacherUpdateDto input) {
+        TeacherDto updated = teacherService.update(id, input);
 
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Teacher> patchTeacher(@PathVariable Long id, @RequestBody TeacherPatchDto patch) {
-        Teacher updated = teacherService.patch(id, patch);
+    public ResponseEntity<TeacherDto> patchTeacher(@PathVariable Long id, @RequestBody TeacherPatchDto patch) {
+        TeacherDto updated = teacherService.patch(id, patch);
 
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
