@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,8 +33,8 @@ public class StudentApiIT {
         mvc.perform(get("/students?page=0&size=5&sort=lastName,asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].email").value("barry@example.com"))
-                .andExpect(jsonPath("$.size").value(5))
-                .andExpect(jsonPath("$.number").value(0));
+                .andExpect(jsonPath("$.size").value(Optional.of(5)))
+                .andExpect(jsonPath("$.number").value(Optional.of(0)));
     }
 
     @Test
@@ -68,7 +70,7 @@ public class StudentApiIT {
 
         mvc.perform(get("/students/search?firstName=bar&page=0&size=1-&sort=lastName,asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content.length()").value(Optional.of(2)))
                 .andExpect(jsonPath("$.content[0].firstName").value("Barry"));
     }
 
