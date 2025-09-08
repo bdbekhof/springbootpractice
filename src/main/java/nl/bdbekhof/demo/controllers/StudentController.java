@@ -1,11 +1,12 @@
 package nl.bdbekhof.demo.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import nl.bdbekhof.demo.dtos.student.StudentCreateDto;
 import nl.bdbekhof.demo.dtos.student.StudentDto;
 import nl.bdbekhof.demo.dtos.student.StudentPatchDto;
 import nl.bdbekhof.demo.dtos.student.StudentUpdateDto;
-import nl.bdbekhof.demo.models.Student;
 import nl.bdbekhof.demo.services.StudentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+@Tag(name = "Students", description = "Management of students")
 @RestController
 @RequestMapping("/students")
 public class StudentController {
@@ -47,16 +49,19 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    @Operation(summary = "Find students by id", description = "Supports searching for students by id.")
     @GetMapping("/{id}")
     public StudentDto getOne(@PathVariable Long id) {
         return studentService.getOne(id);
     }
-    
+
+    @Operation(summary = "Find students by email", description = "Supports searching for students by email.")
     @GetMapping(value = "/search", params = "email")
     public StudentDto getByEmail(@RequestParam String email) {
         return studentService.getByEmail(email);
     }
 
+    @Operation(summary = "Paged list of students", description = "Supports pagination and sorting.")
     @GetMapping
     public Page<StudentDto> getAll(
             @RequestParam(defaultValue = "0") int page,
@@ -69,12 +74,14 @@ public class StudentController {
         Pageable pageable = PageRequest.of(page, size, sortObj);
         return studentService.search(firstName, lastName, pageable);
     }
-    
+
+    @Operation(summary = "Create a student", description = "Has the ability to create a new student.")
     @PostMapping
     public StudentDto createStudent(@Valid @RequestBody StudentCreateDto input) {
         return studentService.create(input);
     }
 
+    @Operation(summary = "Update a student", description = "Updates every field of a student.")
     @PutMapping("/{id}")
     public ResponseEntity<StudentDto> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentUpdateDto input) {
         StudentDto updated = studentService.update(id, input);
@@ -82,6 +89,7 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
+    @Operation(summary = "Patch a student", description = "Only updates altered fields of a student.")
     @PatchMapping("/{id}")
     public ResponseEntity<StudentDto> patchStudent(@PathVariable Long id, @RequestBody StudentPatchDto patch) {
         StudentDto updated = studentService.patch(id, patch);
@@ -89,6 +97,7 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
+    @Operation(summary = "Delete a student", description = "Deletes the selected student.")
     @DeleteMapping("/{id}")
     public ResponseEntity<StudentDto> deleteStudent(@PathVariable Long id) {
         studentService.delete(id);
