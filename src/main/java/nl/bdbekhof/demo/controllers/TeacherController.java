@@ -53,7 +53,7 @@ public class TeacherController {
 
     @Operation(summary = "Delete a teacher", description = "Deletes the selected teacher.")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Teacher> deleteTeacher(@PathVariable Long id) {
+    public ResponseEntity<TeacherDto> deleteTeacher(@PathVariable Long id) {
         teacherService.delete(id);
 
         return ResponseEntity.noContent().build();

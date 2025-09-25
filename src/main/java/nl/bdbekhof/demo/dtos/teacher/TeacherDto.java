@@ -1,4 +1,10 @@
 package nl.bdbekhof.demo.dtos.teacher;
 
-public record TeacherDto(Long id, String firstName, String lastName, String subject, String email) {
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public record TeacherDto(@Schema(example = "1") Long id,
+                         @Schema(example = "Harold") String firstName,
+                         @Schema(example = "Frennekan") String lastName,
+                         @Schema(example = "Mathematics") String subject,
+                         @Schema(example = "H.Frennekan@school.com") String email) {
 }

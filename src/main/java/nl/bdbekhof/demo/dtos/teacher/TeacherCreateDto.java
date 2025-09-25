@@ -1,6 +1,12 @@
 package nl.bdbekhof.demo.dtos.teacher;
 
-public record TeacherCreateDto(String firstName, String lastName, String subject, String email) {
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public record TeacherCreateDto(@Schema(example = "Harold") String firstName,
+                               @Schema(example = "Frennekan") String lastName,
+                               @Schema(example = "Mathematics") String subject,
+                               @Schema(example = "H.Frennekan@school.com") String email
+) {
     public String getEmail() {
         return this.email;
     }
